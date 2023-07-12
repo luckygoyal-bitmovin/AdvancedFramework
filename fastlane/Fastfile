@@ -1,0 +1,167 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "builds a binary for this sample Framework"
+  lane :build_binary do
+    FileUtils.remove_dir("#{DirectoryHelper.project_root}/Output", true)
+    FileUtils.remove_dir("#{DirectoryHelper.project_root}/Release", true)
+
+    schemes = [
+      {
+        scheme: "AdvancedFramework",
+        product_name: "AdvancedFramework",
+        is_multiplatform: true
+      },
+    ]
+
+    schemes.each do |entry|
+      build_release_product(
+        scheme: entry[:scheme],
+        product_name: entry[:product_name],
+        is_multiplatform: entry[:is_multiplatform]
+      )
+      create_release_xcframework_zip(
+        product_name: entry[:product_name]
+      )
+    end
+
+    # create umbrella zip for CocoaPods
+    create_release_xcframework_zip(
+      product_name: "AdvancedFramework",
+      zip_name: "AdvancedFramework-CocoaPods",
+    )
+  end
+
+  desc "release build tvOS and iOS"
+  private_lane :build_release_product do |options|
+    scheme = options[:scheme]
+    product_name = options[:product_name]
+    is_multiplatform = options[:is_multiplatform]
+
+    output_dir = "#{DirectoryHelper.project_root}/Output/#{product_name}"
+    ios_scheme = "#{scheme}#{is_multiplatform ? "" : "-iOS"}"
+    tvos_scheme = "#{scheme}#{is_multiplatform ? "" : "-tvOS"}"
+
+    FileUtils.remove_dir(output_dir, true)
+    FileUtils.mkdir_p(output_dir)
+
+    iOS_device_archive_info = build_release_specific_platform(
+      output_dir: output_dir,
+      scheme: ios_scheme,
+      product_name: product_name,
+      platform: "iOS"
+    )
+    iOS_simulator_archive_info = build_release_specific_platform(
+      output_dir: output_dir,
+      scheme: ios_scheme,
+      product_name: product_name,
+      platform: "iOS Simulator"
+    )
+
+    tvOS_device_archive_info = build_release_specific_platform(
+      output_dir: output_dir,
+      scheme: tvos_scheme,
+      product_name: product_name,
+      platform: "tvOS"
+    )
+    tvOS_simulator_archive_info = build_release_specific_platform(
+      output_dir: output_dir,
+      scheme: tvos_scheme,
+      product_name: product_name,
+      platform: "tvOS Simulator"
+    )
+
+    def transform_to_options(archive_info)
+      options = %{-framework #{archive_info[:framework]} -debug-symbols #{archive_info[:dsyms]}}
+      options
+    end
+
+    xcframework_command = "xcodebuild -create-xcframework \
+      #{transform_to_options(iOS_device_archive_info)} \
+      #{transform_to_options(iOS_simulator_archive_info)}"
+
+    xcframework_command << " #{transform_to_options(tvOS_device_archive_info)}"
+    xcframework_command << " #{transform_to_options(tvOS_simulator_archive_info)}"
+
+    xcframework_command << " -output #{output_dir}/#{product_name}.xcframework"
+
+    sh(xcframework_command)
+  end
+
+  desc "build release for specific platform"
+  private_lane :build_release_specific_platform do |options|
+    scheme = options[:scheme]
+    product_name = options[:product_name]
+    platform = options[:platform]
+    archive_path = "#{options[:output_dir]}/#{product_name}-#{platform.gsub(' ', '_')}.xcarchive"
+    UI.header "Building #{scheme} for #{platform}"
+
+    xcodebuild(
+      scheme: scheme,
+      project: "AdvancedFramework.xcodeproj",
+      clean: true,
+      archive: true,
+      archive_path: archive_path,
+      xcargs: "-configuration Release SKIP_INSTALL=NO",
+      destination: "generic/platform=#{platform}",
+    )
+
+    {
+        framework: "#{archive_path}/Products/Library/Frameworks/#{product_name}.framework",
+        dsyms: "#{archive_path}/dSYMs/#{product_name}.framework.dSYM"
+    }
+  end
+
+  desc "create zip out of individual xcframework"
+  private_lane :create_release_xcframework_zip do |options|
+    product_name = options[:product_name]
+    zip_name = options[:zip_name] || product_name
+
+    release_dir = "#{DirectoryHelper.project_root}/Release"
+
+    FileUtils.mkdir_p(release_dir)
+
+    Dir.chdir(release_dir) do
+      FileUtils.remove_dir('temp', true)
+      Dir.mkdir('temp')
+      Dir.chdir('temp') do
+        products_to_package = []
+        products_to_package << product_name
+
+        products_to_package.each do |product|
+          product_path = "#{DirectoryHelper.project_root}/Output/#{product}/#{product}.xcframework"
+          FileUtils.cp_r(product_path, '.')
+        end
+
+        sh("zip -r #{release_dir}/#{zip_name}.zip . -x '**/.DS_Store'")
+      end
+      FileUtils.remove_dir('temp', true)
+    end
+  end
+end
+
+class DirectoryHelper
+  @@project_root = nil
+
+  def self.project_root
+    return @@project_root unless @@project_root.nil?
+
+    current_file_path = File.expand_path(__FILE__)
+    @@project_root = current_file_path.slice(0..(current_file_path.index('/fastlane') - 1))
+  end
+end

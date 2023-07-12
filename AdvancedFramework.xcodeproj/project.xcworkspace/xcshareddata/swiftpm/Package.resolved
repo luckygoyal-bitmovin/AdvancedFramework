@@ -1,0 +1,41 @@
+{
+  "pins" : [
+    {
+      "identity" : "bitmovin-analytics-collector-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmovin/bitmovin-analytics-collector-ios",
+      "state" : {
+        "revision" : "ae1a45b480b75644a2dac5bea57dcac71668a1b8",
+        "version" : "3.0.0-a.1"
+      }
+    },
+    {
+      "identity" : "googlecastsdk-ios-no-bluetooth",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SRGSSR/GoogleCastSDK-ios-no-bluetooth.git",
+      "state" : {
+        "revision" : "fb1ae18c88ce1cd1f12e7c6ae12c0b7cdc011c50",
+        "version" : "4.7.1-beta.1"
+      }
+    },
+    {
+      "identity" : "player-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmovin/player-ios",
+      "state" : {
+        "revision" : "07a39a660a56eb451efc341a298a6d0f27f03994",
+        "version" : "3.40.0"
+      }
+    },
+    {
+      "identity" : "player-ios-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmovin/player-ios-core.git",
+      "state" : {
+        "revision" : "525aac588eb95d1f2a0e8ade74b9bba9c6b6844d",
+        "version" : "3.40.0"
+      }
+    }
+  ],
+  "version" : 2
+}

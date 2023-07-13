@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B3A82482A5D821E0093CDC4 /* GoogleCastSDK-ios-no-bluetooth in Frameworks */ = {isa = PBXBuildFile; productRef = 2B3A82472A5D821E0093CDC4 /* GoogleCastSDK-ios-no-bluetooth */; };
+		2B3A82482A5D821E0093CDC4 /* GoogleCastSDK-ios-no-bluetooth in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 2B3A82472A5D821E0093CDC4 /* GoogleCastSDK-ios-no-bluetooth */; };
 		37B700E12A30A40700B40A55 /* AdvancedFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 37B700E02A30A40700B40A55 /* AdvancedFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		37B700E82A30A43E00B40A55 /* PlayerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B700E72A30A43E00B40A55 /* PlayerWrapper.swift */; };
 		37B700EB2A30A48A00B40A55 /* BitmovinPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 37B700EA2A30A48A00B40A55 /* BitmovinPlayer */; };
@@ -338,7 +338,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 942275CR6V;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";

@@ -9,13 +9,16 @@
 import BitmovinPlayer
 import BitmovinCollector
 import CoreCollector
+#if os(iOS)
 import GoogleCast
+#endif
 
 // This sample showcases how the BitmovinPlayer could be used from within another Framework which wraps the Player.
 public class PlayerWrapper {
     private let player: Player
     private let collector: BitmovinPlayerCollector
     
+#if os(iOS)
     private var bitmovinCastManager: BitmovinCastManager
     // Bitmovin cast manger options
     private let bitmovinCastManagerOptions = BitmovinCastManagerOptions()
@@ -23,6 +26,7 @@ public class PlayerWrapper {
     private static var namespace = "urn:x-cast:com.mediakind.cast.media"
     // ID to communicate with receiver
     private static var applicationId = "5A468DEE"
+#endif
     
 
     public init() {
@@ -33,7 +37,7 @@ public class PlayerWrapper {
 
         self.player = PlayerFactory.create(playerConfig: playerConfig)
         self.collector = BitmovinPlayerCollector(config: analyticsConfig)
-        
+#if os(iOS)
         bitmovinCastManagerOptions.deviceDiscoveryMode = .castButtonInteraction
         bitmovinCastManagerOptions.applicationId = "5A468DEE"
         bitmovinCastManagerOptions.messageNamespace = PlayerWrapper.namespace
@@ -41,6 +45,7 @@ public class PlayerWrapper {
         BitmovinCastManager.initializeCasting(options: bitmovinCastManagerOptions)
         bitmovinCastManager = BitmovinCastManager.sharedInstance()
         let currentMediaStatus = bitmovinCastManager.currentMediaStatus
+#endif
     }
 
     func setup() {
